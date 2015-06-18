@@ -4,8 +4,8 @@
  * @author Carhugar1
  */
 
-include_once 'Observer.php';
-include_once 'Wbot.php';
+include_once 'Patterns/Observer.php';
+include_once 'Commands/Wbot.php';
 
 class IRCBot extends Observable {
 	
@@ -85,13 +85,13 @@ class IRCBot extends Observable {
 	// <---- AutoLoader ---->
 	
 	/**
-	 * Includes any needed files
+	 * Includes any needed files [DOESN'T WORK]
 	 */
-	function __autoload($class) {
+	/*function __autoload($class) {
 		
 		include $class . '.php';
 		
-	}
+	}*/
 	
 	//spl_autoload_register('AutoLoader');
 	
@@ -102,7 +102,7 @@ class IRCBot extends Observable {
 	/**
 	 * Logs into IRC 
 	 */
-	function login($config) {
+	private function login($config) {
 		
 		fputs($this->socket, 'NICK ' . $config['nick'] . "\r\n");
 		echo '<b>NICK ' . $config['nick'] . '</b><br>';
@@ -120,7 +120,7 @@ class IRCBot extends Observable {
 	 * Recursively parses the data sent and notifies the observers
 	 * Also handles PING PONG 
 	 */
-	function parse() {
+	private function parse() {
 		
 		$data = fgets($this->socket, 256);
 		
@@ -167,7 +167,7 @@ class IRCBot extends Observable {
 	/**
 	 * Sends a message to the designated channel or user
 	 */
-	function msg($user, $message) {
+	public function msg($user, $message) {
 		
 		fputs($this->socket, 'PRIVMSG ' . $user . ' :' . $message . "\r\n");
 		echo '<b>PRIVMSG ' . $user . ' :' . $message . '</b><br>';
@@ -177,7 +177,7 @@ class IRCBot extends Observable {
 	/**
 	 * Sends a notice to the designated user
 	 */
-	function notice($user, $message) {
+	public function notice($user, $message) {
 		
 		fputs($this->socket, 'NOTICE ' . $user . ' :' . $message . "\r\n");
 		echo '<b>NOTICE ' . $user . ' :' . $message . '</b><br>';
@@ -187,7 +187,7 @@ class IRCBot extends Observable {
 	/**
 	 * Joins the designated channel
 	 */
-	function join($channel) {
+	public function join($channel) {
 		
 		fputs($this->socket, 'JOIN ' . $channel . "\r\n");
 		echo '<b>JOIN ' . $channel . '</b><br>';
@@ -197,7 +197,7 @@ class IRCBot extends Observable {
 	/**
 	 * Parts the designated channel
 	 */
-	function part($channel) {
+	public function part($channel) {
 		
 		fputs($this->socket, 'PART ' . $channel . "\r\n");
 		echo '<b>PART ' . $channel . '</b><br>';
@@ -207,7 +207,7 @@ class IRCBot extends Observable {
 	/**
 	 * Quits IRC
 	 */
-	function quit($reason = null) {
+	public function quit($reason) {
 		
 		if($reason != null) {
 			
@@ -229,7 +229,7 @@ class IRCBot extends Observable {
 	 * Attach a Observer to the Observable Object
 	 * @parameter Observer $observer
 	 */
-	function attach(Observer $observer) {
+	public function attach(Observer $observer) {
 		
 		$this->observers[] = $observer;
 		
@@ -239,7 +239,7 @@ class IRCBot extends Observable {
 	 * Detach the Observer from the Observable Object
 	 * @parameter Observer $observer
 	 */
-	function detach(Observer $observer) {
+	public function detach(Observer $observer) {
 		
 		for($i = 0; $i < count($this->observers); $i += 1) {
 			
@@ -259,7 +259,7 @@ class IRCBot extends Observable {
 	/**
 	 * Notify all the the Observers by the Observers' update functions
 	 */
-	function notify() {
+	public function notify() {
 		
 		for($i = 0; $i < count($this->observers); $i += 1) {
 			
