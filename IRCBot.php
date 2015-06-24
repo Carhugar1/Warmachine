@@ -139,7 +139,7 @@ class IRCBot extends Observable {
         }
 		
 		// Message
-		if($this->socket_msg[1] == 'PRIVMSG') {
+		else if($this->socket_msg[1] == 'PRIVMSG') {
 		
 			// Get the data
 			$this->channel = $this->socket_msg[2];
@@ -153,6 +153,21 @@ class IRCBot extends Observable {
 			// Tell the observers
 			$this->notify();
 		
+		}
+		
+		// Join 
+		// NOTE: puts the users address in message
+		else if($this->socket_msg[1] == 'JOIN') {
+			
+			// Get the data
+			$this->channel = str_replace(array(chr(10), chr(13)), '', $this->socket_msg[2]);
+			
+			$this->command = 'JOIN';
+			
+			$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
+			
+			$this->message = strtok('!');
+			
 		}
 		
 		// Recursive call
