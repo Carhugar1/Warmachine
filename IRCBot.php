@@ -169,8 +169,16 @@ class IRCBot extends Observable {
 	 */
 	public function msg($user, $message) {
 		
-		fputs($this->socket, 'PRIVMSG ' . $user . ' :' . $message . "\r\n");
-		echo '<b>PRIVMSG ' . $user . ' :' . $message . '</b><br>';
+		$message = str_split($message, 450);
+		
+		for($i = 0; $i < count($message); $i += 1) {
+			
+			fputs($this->socket, 'PRIVMSG ' . $user . ' :' . $message[$i] . "\r\n");
+			echo '<b>PRIVMSG ' . $user . ' :' . $message[$i] . '</b><br>';
+			
+		}
+		
+		
 		
 	}
 	
@@ -179,8 +187,14 @@ class IRCBot extends Observable {
 	 */
 	public function notice($user, $message) {
 		
-		fputs($this->socket, 'NOTICE ' . $user . ' :' . $message . "\r\n");
-		echo '<b>NOTICE ' . $user . ' :' . $message . '</b><br>';
+		$message = str_split($message, 450);
+		
+		for($i = 0; $i < count($message); $i += 1) {
+			
+			fputs($this->socket, 'NOTICE ' . $user . ' :' . $message[$i] . "\r\n");
+			echo '<b>NOTICE ' . $user . ' :' . $message[$i] . '</b><br>';
+			
+		}
 		
 	}
 	

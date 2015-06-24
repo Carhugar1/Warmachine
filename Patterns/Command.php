@@ -14,12 +14,12 @@ abstract class Command extends Observer {
 	/*
 	 * Holds the phrase used to activate this command
 	 */
-	private $phrase;
+	private $phrase = array();
 	
 	/*
-	 *
+	 * The access level needed to run the command
 	 */
-	private $level;
+	private $level; // not implemented
 	
 	
 	
@@ -44,7 +44,7 @@ abstract class Command extends Observer {
 	 */
 	public function update(Observable $observable) {
 		
-		if($observable->command == $this->phrase) {
+		if(in_array($observable->command, $this->phrase)) {
 			
 			if($observable->message[0] == 'help' || $observable->message[0] == '?') {
 				
@@ -88,7 +88,7 @@ abstract class Command extends Observer {
 	 */
 	private function brief(Observable $observable) {
 		
-		$observable->message[$this->level] .= $this->phrase . ' ';
+		$observable->message[$this->level] .= implode(' ' ,$this->phrase) . ' ';
 		
 	}
 	

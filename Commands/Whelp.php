@@ -6,7 +6,7 @@
 
 include_once '/Patterns/Command.php';
  
-class W extends Command {
+class Whelp extends Command {
 	
 	// <---- Constructors ---->
 	
@@ -15,7 +15,7 @@ class W extends Command {
 	 */
 	function __construct() {
 		
-		parent::__construct(array('W'), 0);
+		parent::__construct(array('Whelp', 'W?'), 1);
 		
 	} // end __construct()
 	
@@ -28,24 +28,21 @@ class W extends Command {
 	 */
 	function run(Observable $observable) {
 		
-		$observable->command = 'BRIEF';
-		$observable->message = array();
+		// run the commands help method :P
+		if(array_key_exists(0, $observable->message)) {
 		
-		$observable->notify();
+			$observable->command = $observable->message[0];
+			$observable->message[0] = 'help';
 		
-		$msg = '';
-		
-		for($i = 1; $i < 11; $i += 1) {
-			
-			if(array_key_exists($i, $observable->message)) {
-				
-				$msg .= $observable->message[$i];
-				
-			}
+			$observable->notify();
 			
 		}
 		
-		$observable->notice($observable->nick, 'Commands: ' . $msg);
+		else {
+			
+			$observable->notice($observable->nick, 'Whelp [ command ]');
+			
+		}		
 		
 	} // end run()
 	
@@ -55,7 +52,7 @@ class W extends Command {
 	 */
 	function help() {
 		
-		return 'W lists all the commands for Warmachine.';
+		return 'Retrieves help on the given command.';
 		
 	} // end help()
 	

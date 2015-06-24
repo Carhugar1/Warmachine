@@ -15,7 +15,7 @@ class Wbot extends Command {
 	 */
 	function __construct() {
 		
-		parent::__construct('Wbot', 10);
+		parent::__construct(array('Wbot'), 10);
 		
 	} // end __construct()
 	
@@ -32,8 +32,8 @@ class Wbot extends Command {
 			
 			if($observable->message[0] == 'restart') {
 				
-				$observable->quit('Restart Command Executed');
 				echo "<meta http-equiv=\"refresh\" content=\"5\">";
+				$observable->quit('Restart Command Executed');
 				exit;
 				
 			} // end restart
