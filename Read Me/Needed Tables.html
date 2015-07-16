@@ -1,0 +1,49 @@
+<html>
+
+<style>
+table {
+    border-collapse: collapse;
+}
+
+table, td, th {
+    border: solid gray;
+}
+
+th {
+    background-color: grey;
+    color: white;
+}
+
+td {
+    padding: 15px;
+	color: black;
+}
+
+.even {
+	background-color: #ADD8E6;
+}
+</style>
+
+<table>
+	<thead>
+		<tr>
+			<th>Table</th>
+			<th>Create Table</th>
+		</tr>
+	</thead>
+	<tbody>
+	<tr class="odd"><td><strong>waccess_user_level</strong></td><td>CREATE TABLE `waccess_user_level` (<br>
+&nbsp;`access_level` int(2) unsigned NOT NULL,<br>
+&nbsp;`username` char(30) COLLATE latin1_general_ci NOT NULL,<br>
+&nbsp;`set_by` char(30) COLLATE latin1_general_ci NOT NULL,<br>
+&nbsp;`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP<br>
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci</td></tr>
+	<tr class="even"><td><strong>wbot_attach</strong></td><td>CREATE TABLE `wbot_attach` (<br>
+&nbsp;`command` char(30) COLLATE latin1_general_ci NOT NULL,<br>
+&nbsp;`user` char(30) COLLATE latin1_general_ci DEFAULT NULL,<br>
+&nbsp;`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP<br>
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci</td></tr>
+	</tbody>
+</table>
+
+</html>

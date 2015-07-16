@@ -64,6 +64,11 @@ class IRCBot extends Observable {
 	 */
 	public $message = array();
 	
+	/*
+	 * Hold the data base connection
+	 */
+	public $database;
+	
 
 	
 	// <---- Constructors ---->
@@ -74,8 +79,10 @@ class IRCBot extends Observable {
 	function __construct($config) {
 		
 		$this->socket = fsockopen($config['server'], $config['port']);
+		$this->database = mysqli_connect("localhost","root","","ircbot");
 		$this->login($config);
 		$this->attach(new Wbot());
+		$this->start();
 		$this->parse();
 		
 	}
@@ -114,6 +121,21 @@ class IRCBot extends Observable {
 		
 		$this->join($config['channel']);
 		
+	}	
+	
+	
+	/**
+	 * This is code is ran before the main part of the bot (aka the start)
+	 */
+	private function start() {
+		
+		// Wbot
+		$this->command = 'Wbot';
+		$this->nick = 'Carhugar1';
+		$this->message[0] = 'boot';
+		
+		$this->notify();
+		
 	}
 	
 	/**
@@ -130,43 +152,48 @@ class IRCBot extends Observable {
 		
 		$this->socket_msg = explode(' ', $data);
 		
-		// PING PONG
-		if($this->socket_msg[0] == 'PING') {
+		// removes a lot of errors
+		if (isset($this->socket_msg[0], $this->socket_msg[1])) {
 			
-            fputs($this->socket, 'PONG ' . $this->socket_msg[1] . "\r\n");
-			echo '<b>PONG ' . $this->socket_msg[1] . '</b><br>';
+			// PING PONG
+			if($this->socket_msg[0] == 'PING') {
 			
-        }
-		
-		// Message
-		else if($this->socket_msg[1] == 'PRIVMSG') {
-		
-			// Get the data
-			$this->channel = $this->socket_msg[2];
-		
-			$this->command = str_replace(array(chr(10), chr(13), ':'), '', $this->socket_msg[3]);
-		
-			$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
-		
-			$this->message = str_replace(array(chr(10), chr(13)), '', array_slice($this->socket_msg, 4));
-		
-			// Tell the observers
-			$this->notify();
-		
-		}
-		
-		// Join 
-		// NOTE: puts the users address in message
-		else if($this->socket_msg[1] == 'JOIN') {
+				fputs($this->socket, 'PONG ' . $this->socket_msg[1] . "\r\n");
+				echo '<b>PONG ' . $this->socket_msg[1] . '</b><br><br>';
 			
-			// Get the data
-			$this->channel = str_replace(array(chr(10), chr(13)), '', $this->socket_msg[2]);
+			}
+		
+			// Message
+			else if($this->socket_msg[1] == 'PRIVMSG') {
+		
+				// Get the data
+				$this->channel = $this->socket_msg[2];
+		
+				$this->command = str_replace(array(chr(10), chr(13), ':'), '', $this->socket_msg[3]);
+		
+				$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
+		
+				$this->message = str_replace(array(chr(10), chr(13)), '', array_slice($this->socket_msg, 4));
+		
+				// Tell the observers
+				$this->notify();
+		
+			}
+		
+			// Join 
+			// NOTE: puts the users address in message
+			else if($this->socket_msg[1] == 'JOIN') {
 			
-			$this->command = 'JOIN';
+				// Get the data
+				$this->channel = str_replace(array(chr(10), chr(13)), '', $this->socket_msg[2]);
 			
-			$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
+				$this->command = 'JOIN';
 			
-			$this->message = strtok('!');
+				$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
+			
+				$this->message = strtok('!');
+			
+			}
 			
 		}
 		
@@ -189,11 +216,9 @@ class IRCBot extends Observable {
 		for($i = 0; $i < count($message); $i += 1) {
 			
 			fputs($this->socket, 'PRIVMSG ' . $user . ' :' . $message[$i] . "\r\n");
-			echo '<b>PRIVMSG ' . $user . ' :' . $message[$i] . '</b><br>';
+			echo '<b>PRIVMSG ' . $user . ' :' . $message[$i] . '</b><br><br>';
 			
-		}
-		
-		
+		}		
 		
 	}
 	
@@ -207,7 +232,7 @@ class IRCBot extends Observable {
 		for($i = 0; $i < count($message); $i += 1) {
 			
 			fputs($this->socket, 'NOTICE ' . $user . ' :' . $message[$i] . "\r\n");
-			echo '<b>NOTICE ' . $user . ' :' . $message[$i] . '</b><br>';
+			echo '<b>NOTICE ' . $user . ' :' . $message[$i] . '</b><br><br>';
 			
 		}
 		
@@ -219,7 +244,7 @@ class IRCBot extends Observable {
 	public function join($channel) {
 		
 		fputs($this->socket, 'JOIN ' . $channel . "\r\n");
-		echo '<b>JOIN ' . $channel . '</b><br>';
+		echo '<b>JOIN ' . $channel . '</b><br><br>';
 		
 	}
 	
@@ -229,7 +254,7 @@ class IRCBot extends Observable {
 	public function part($channel) {
 		
 		fputs($this->socket, 'PART ' . $channel . "\r\n");
-		echo '<b>PART ' . $channel . '</b><br>';
+		echo '<b>PART ' . $channel . '</b><br><br>';
 		
 	}
 	
@@ -241,14 +266,14 @@ class IRCBot extends Observable {
 		if($reason != null) {
 			
 			fputs($this->socket, 'QUIT :' . $reason . "\r\n");
-			echo '<b>QUIT :' . $reason . '</b><br>';
+			echo '<b>QUIT :' . $reason . '</b><br><br>';
 			
 		}
 		
 		else {
 			
 			fputs($this->socket, "QUIT :\r\n");
-			echo '<b>QUIT :</b><br>';			
+			echo '<b>QUIT :</b><br><br>';			
 			
 		}
 		

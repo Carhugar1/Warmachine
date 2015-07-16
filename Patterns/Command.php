@@ -9,7 +9,8 @@ include_once 'Observer.php';
  
 abstract class Command extends Observer {
 	
-	//// <---- private variables ---->
+	
+	// <---- private variables ---->
 	
 	/*
 	 * Holds the phrase used to activate this command
@@ -44,11 +45,36 @@ abstract class Command extends Observer {
 	 */
 	public function update(Observable $observable) {
 		
-		if(in_array($observable->command, $this->phrase)) {
+		// get the access level of the user
+		$query = "Select a.access_level from waccess_user_level a 
+					Where a.username = '" . $observable->nick . "'";
+		$result = mysqli_query($observable->database, $query);
+		$accesslvl = mysqli_fetch_array($result)['access_level'];
+		
+		// if the username has no access level set it as 1 the base level
+		if($accesslvl == null) {
 			
-			if($observable->message[0] == 'help' || $observable->message[0] == '?') {
+			$accesslvl = 1;
+			
+		}
+		
 				
-				$observable->notice($observable->nick, $this->help());
+		// Run the command
+		if(in_array($observable->command, $this->phrase) && $accesslvl >= $this->level) {
+			
+			if(isset($observable->message[0])) {
+			
+				if(in_array($observable->message[0], array('help', '?'))) {
+				
+					$observable->notice($observable->nick, $this->help());
+				
+				}
+				
+				else {
+					
+					$this->run($observable);
+					
+				}
 				
 			}
 			
@@ -60,7 +86,7 @@ abstract class Command extends Observer {
 			
 		}
 		
-		else if($observable->command == 'BRIEF') {
+		else if($observable->command == 'BRIEF' && $accesslvl >= $this->level) {
 			
 			$this->brief($observable);
 			
@@ -88,7 +114,7 @@ abstract class Command extends Observer {
 	 */
 	private function brief(Observable $observable) {
 		
-		$observable->message[$this->level] .= implode(' ' ,$this->phrase) . ' ';
+		@$observable->message[$this->level] .= implode(' ' ,$this->phrase) . ' ';
 		
 	}
 	

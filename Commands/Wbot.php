@@ -6,7 +6,7 @@
 
 include_once '/Patterns/Command.php';
  
-class Wbot extends Command {
+class Wbot extends Command {	
 	
 	// <---- Constructors ---->
 	
@@ -29,68 +29,104 @@ class Wbot extends Command {
 	function run(Observable $observable) {
 		
 		if($observable->nick == 'Carhugar1') {
+		
+			if(isset($observable->message[0])) {
 			
-			if($observable->message[0] == 'restart') {
+				if($observable->message[0] == 'restart') {
 				
-				echo "<meta http-equiv=\"refresh\" content=\"5\">";
-				$observable->quit('Restart Command Executed');
-				exit;
+					echo "<meta http-equiv=\"refresh\" content=\"5\">";
+					$observable->quit('Restart Command Executed');
+					exit;
 				
-			} // end restart
+				} // end restart
 			
-			else if($observable->message[0] == 'shutdown') {
+				else if($observable->message[0] == 'shutdown') {
 				
-				$observable->quit('Shutdown Command Executed');
-				exit;
+					$observable->quit('Shutdown Command Executed');
+					exit;
 				
-			} // end shutdown
+				} // end shutdown
 			
-			else if($observable->message[0] == 'join') {
+				else if($observable->message[0] == 'join') {
 				
-				if(array_key_exists(1, $observable->message)) {
+					if(array_key_exists(1, $observable->message)) {
 					
-					$observable->join($observable->message[1]);
+						$observable->join($observable->message[1]);
 					
-				}
+					}
 				
-			} // end join
+				} // end join
 			
-			else if($observable->message[0] == 'leave') {
+				else if($observable->message[0] == 'leave') {
 				
-				if(array_key_exists(1, $observable->message)) {
+					if(array_key_exists(1, $observable->message)) {
+						
+						$observable->part($observable->message[1]);
 					
-					$observable->part($observable->message[1]);
-					
-				}
+					}
 				
+					else {
+					
+						$observable->part($observable->channel);
+					
+					}
+				
+				} // end leave
+			
+				else if($observable->message[0] == 'attach') {
+				
+					if(array_key_exists(1, $observable->message)) {
+					
+						// attach to bot
+						include_once $observable->message[1] . '.php';
+						eval('$observable->attach(new ' . $observable->message[1] . '());');
+					
+						// add to database
+						$query = "Insert into wbot_attach (command, user) Values ('" . $observable->message[1] . "', '" . $observable->nick . "')";
+						echo mysqli_query($observable->database, $query);
+					
+					}			
+				
+				} // end attach
+			
+				else if($observable->message[0] == 'detach') {
+				
+					if(array_key_exists(1, $observable->message)) {
+					
+						// detach from bot
+						eval('$observable->detach(new ' . $observable->message[1] . '());');
+					
+						// remove from database
+						$query = "Delete from wbot_attach Where command = '" . $observable->message[1] . "'";
+						echo mysqli_query($observable->database, $query);
+					
+					}			
+				
+				} // end detach
+			
+				else if($observable->message[0] == 'boot') {
+				
+					$query = "Select command from wbot_attach";
+					$result = mysqli_query($observable->database, $query);
+		
+					while($row = mysqli_fetch_array($result)) {
+					
+						include_once $row['command'] . '.php';
+						eval('$observable->attach(new ' . $row['command'] . '());');
+					
+					}
+				
+					echo 'here';
+				
+				} // end boot
+			
 				else {
-					
-					$observable->part($observable->channel);
-					
+				
+					$observable->notice($observable->nick, 'Wbot [ shutdown | restart | join | leave ] ( channel )');
+				
 				}
 				
-			} // end leave
-			
-			else if($observable->message[0] == 'attach') {
-				
-				if(array_key_exists(1, $observable->message)) {
-					
-					include_once $observable->message[1] . '.php';
-					eval('$observable->attach(new ' . $observable->message[1] . '());');
-					
-				}			
-				
-			} // end attach
-			
-			else if($observable->message[0] == 'detach') {
-				
-				if(array_key_exists(1, $observable->message)) {
-					
-					eval('$observable->detach(new ' . $observable->message[1] . '());');
-					
-				}			
-				
-			} // end detach
+			}
 			
 			else {
 				
