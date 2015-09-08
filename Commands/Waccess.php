@@ -116,9 +116,9 @@ class Waccess extends Command {
 	 */
 	function help() {
 		
-		return "Waccess sets a user's access level.
-				A user's access level decides the commands that are available to that user.
-				Suggested levels: 1 anyone, 2-4 basic, 5-7 basic+, 8-9 channel admin, 10 bot admin";
+		return 'Waccess sets a user\'s access level. ' . 
+				'A user\'s access level decides the commands that are available to that user. ' .
+				'Suggested levels: 1 anyone, 2-4 basic, 5-7 basic+, 8-9 channel admin, 10 bot admin.';
 		
 	} // end help()
 	

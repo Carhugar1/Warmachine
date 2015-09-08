@@ -111,6 +111,9 @@ class IRCBot extends Observable {
 	 */
 	private function login($config) {
 		
+		fputs($this->socket, 'PASS ' . $config['pass'] . "\r\n");
+		echo '<b>PASS ' . $config['pass'] . '</b><br>';
+		
 		fputs($this->socket, 'NICK ' . $config['nick'] . "\r\n");
 		echo '<b>NICK ' . $config['nick'] . '</b><br>';
 		

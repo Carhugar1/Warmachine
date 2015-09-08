@@ -116,8 +116,6 @@ class Wbot extends Command {
 					
 					}
 				
-					echo 'here';
-				
 				} // end boot
 			
 				else {
