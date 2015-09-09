@@ -194,7 +194,7 @@ class IRCBot extends Observable {
 			
 				$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
 			
-				$this->message = strtok('!');
+				$this->message = strtok('!'); // users address
 			
 			}
 			
@@ -222,6 +222,16 @@ class IRCBot extends Observable {
 			echo '<b>PRIVMSG ' . $user . ' :' . $message[$i] . '</b><br><br>';
 			
 		}		
+		
+	}
+	
+	/**
+	 * Sends a mode command for the designated channel
+	 */
+	public function mode($chan, $message) {
+		
+		fputs($this->socket, 'MODE ' . $chan . ' ' . $message[$i] . "\r\n");
+		echo '<b>MODE ' . $chan . ' ' . $message[$i] . '</b><br><br>';	
 		
 	}
 	

@@ -3,31 +3,10 @@
 /**
  * @author Carhugar1
  */
+
+include_once '/Patterns/Command.php';
  
-include_once '/IRCBot.php';
-include_once 'Observer.php';
- 
-abstract class Command extends Observer {
-	
-	
-	// <---- private variables ---->
-	
-	/*
-	 * Holds the phrase used to activate this command
-	 */
-	private $phrase = array();
-	
-	/*
-	 * The access level needed to run the command
-	 */
-	private $level;
-	
-	/*
-	 * The user's access level
-	 */
-	private $accesslvl;
-	
-	
+abstract class Join extends Command {
 	
 	// <---- Constructors ---->
 	
@@ -39,7 +18,7 @@ abstract class Command extends Observer {
 		$this->phrase = $phrase_in;
 		$this->level = $level_in;
 		
-	}
+	} // end __construct()
 	
 	
 	
@@ -63,34 +42,23 @@ abstract class Command extends Observer {
 			
 		}
 		
-				
-		// Run the command
-		if(in_array($observable->command, $this->phrase) && $this->accesslvl >= $this->level) {
+		
+		// Run the code on the Join command
+		if($observable->command == 'JOIN') {
 			
-			if(isset($observable->message[0])) {
-			
-				if(in_array($observable->message[0], array('help', '?'))) {
-				
-					$observable->notice($observable->nick, $this->help());
-				
-				}
-				
-				else {
-					
-					$this->run($observable);
-					
-				}
-				
-			}
-			
-			else {
-				
-				$this->run($observable);
-				
-			}
+			$this->run();
 			
 		}
 		
+				
+		// Run the help for the command
+		else if(in_array($observable->command, $this->phrase) && $this->accesslvl >= $this->level) {
+			
+			$observable->notice($observable->nick, "(Join): " . $this->help());
+		
+		}
+		
+		// add it to the list of commands
 		else if($observable->command == 'BRIEF' && $this->accesslvl >= $this->level) {
 			
 			$this->brief($observable);
@@ -98,21 +66,6 @@ abstract class Command extends Observer {
 		}
 		
 	} // end update()
-	
-	
-	
-	// <---- private functions ---->
-	
-	/**
-	 * Ran when the phrase has been called
-	 */
-	abstract function run(Observable $observable); 
-	 
-	/**
-	 * Ran when help about the command is requested
-	 * @returns Returns a String with the help message
-	 */
-	abstract function help();
 	
 	/**
 	 * Modifies the observable's message to show the command 
