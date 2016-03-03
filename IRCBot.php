@@ -83,7 +83,6 @@ class IRCBot extends Observable {
 		$this->login($config);
 		$this->attach(new Wbot());
 		$this->start();
-		$this->parse();
 		
 	}
 	
@@ -122,6 +121,8 @@ class IRCBot extends Observable {
 		
 		$this->msg('NickServ' , 'IDENTIFY ' . $config['pass']);
 		
+		sleep(3);
+		
 		$this->join($config['channel']);
 		
 	}	
@@ -141,8 +142,23 @@ class IRCBot extends Observable {
 		
 	}
 	
+	
 	/**
-	 * Recursively parses the data sent and notifies the observers
+	 * Continuously runs the parser
+	 */
+	public function run() {
+		
+		while(true) {
+		
+			$this->parse();
+		
+		}
+		
+	}
+
+	
+	/**
+	 * Parses the data sent and notifies the observers
 	 * Also handles PING PONG 
 	 */
 	private function parse() {
@@ -188,20 +204,20 @@ class IRCBot extends Observable {
 			else if($this->socket_msg[1] == 'JOIN') {
 			
 				// Get the data
-				$this->channel = str_replace(array(chr(10), chr(13)), '', $this->socket_msg[2]);
+				$this->channel = str_replace(array(chr(10), chr(13), ':'), '', $this->socket_msg[2]);
 			
 				$this->command = 'JOIN';
 			
 				$this->nick = str_replace(':', '', strtok($this->socket_msg[0], '!'));
 			
 				$this->message = strtok('!'); // users address
+				
+				// Tell the observers
+				$this->notify();
 			
 			}
 			
 		}
-		
-		// Recursive call
-		$this->parse();
 		
 	}
 	
@@ -230,8 +246,8 @@ class IRCBot extends Observable {
 	 */
 	public function mode($chan, $message) {
 		
-		fputs($this->socket, 'MODE ' . $chan . ' ' . $message[$i] . "\r\n");
-		echo '<b>MODE ' . $chan . ' ' . $message[$i] . '</b><br><br>';	
+		fputs($this->socket, 'MODE ' . $chan . ' ' . $message . "\r\n");
+		echo '<b>MODE ' . $chan . ' ' . $message . '</b><br><br>';	
 		
 	}
 	
